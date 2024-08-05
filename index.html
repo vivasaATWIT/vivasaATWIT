@@ -30,9 +30,9 @@
     </table>
     <script>
         // Your Google Sheets API key
-        const API_KEY = 'AIzaSyA2YZKNsND3TJI8sac-rMhJ0Ae199Pg5JY';
+        const API_KEY = 'AIzaSyA2YZKNsND3TJI8sac-rMhJ0Ae199Pg5JY'; // Replace with your actual API key
         // The ID of the Google Sheet (found in the URL of your sheet)
-        const SHEET_ID = '1nA7_oHlJePurxOaRhlXc9kb76sPL9XZyhlren4xMZdk';
+        const SHEET_ID = '1nA7_oHlJePurxOaRhlXc9kb76sPL9XZyhlren4xMZdk'; // Replace with your actual Sheet ID
         // The range of data you want to fetch
         const RANGE = 'Sheet1!A:B'; // Adjust according to your sheet name and range
         // Average height of the trash can in centimeters
@@ -47,30 +47,39 @@
             return fullness.toFixed(2); // Return as a percentage with two decimal places
         }
 
-        // Fetch data from Google Sheets API
-        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
-                data.values.forEach((row, index) => {
-                    if (index > 0) { // Skip header row
-                        let newRow = tableBody.insertRow();
-                        // Add timestamp and distance
-                        row.forEach((cell, cellIndex) => {
-                            let newCell = newRow.insertCell();
-                            newCell.textContent = cell;
-                            // If it's the distance cell, calculate and add fullness
-                            if (cellIndex === 1) {
-                                let distance = parseFloat(cell);
-                                let fullness = calculateFullness(distance);
-                                let fullnessCell = newRow.insertCell();
-                                fullnessCell.textContent = fullness;
-                            }
-                        });
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
+        // Function to fetch data from Google Sheets API
+        function fetchData() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = ''; // Clear the table before adding new data
+                    data.values.forEach((row, index) => {
+                        if (index > 0) { // Skip header row
+                            let newRow = tableBody.insertRow();
+                            // Add timestamp and distance
+                            row.forEach((cell, cellIndex) => {
+                                let newCell = newRow.insertCell();
+                                newCell.textContent = cell;
+                                // If it's the distance cell, calculate and add fullness
+                                if (cellIndex === 1) {
+                                    let distance = parseFloat(cell);
+                                    let fullness = calculateFullness(distance);
+                                    let fullnessCell = newRow.insertCell();
+                                    fullnessCell.textContent = fullness;
+                                }
+                            });
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Fetch data initially
+        fetchData();
+
+        // Set interval to fetch data every 30 seconds (or any interval you prefer)
+        setInterval(fetchData, 30000); // 30000 milliseconds = 30 seconds
     </script>
 </body>
 </html>
